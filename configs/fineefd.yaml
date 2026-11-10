@@ -1,0 +1,44 @@
+paths:
+  input_path: ""
+  output_path: ""
+
+efd_config:
+  folder: ['ID', 'CAM', 'SEQ'] #데이터 폴더 구조
+  harmonics_num: 128 # 64, 32, 16, 8, 4, 2, 1
+  normalize: false        # true: pyefd normalization (rotation / size / start-point invariant) -> EFD{n}/
+                          # false: keeps rotation (limb swing angle) and relative size        -> EFD{n}-unnorm/
+  align_start_point: true # (normalize: false) remove only the contour start-point dependency
+  scale_to_height: true   # (normalize: false) divide by the per-frame body height (camera distance)
+  parts_num: 8
+  parts:
+    background: [0]
+    head: [1]
+    torso: [2]
+    left_arm: [3, 5]
+    right_arm: [4, 6]
+    left_leg: [7, 9]
+    right_leg: [8, 10]
+    dress: [11]
+
+denoise_config:
+  enable: false # --denoise yes/no on the command line overrides this
+  slicing_num: 128
+  autocorr_axis: 0
+  window:
+    period_range: [15, 60]
+  label:
+    outlier_thresh: 2.4
+    min_peak_height: 0.3
+    min_peak_dist: 5
+    peak_prominence: 0.1
+    zero_ratio: 0.2
+    min_drop_len: 4
+  denoise:
+    interpol_window: 3
+    dense_thres: 0.2
+    noise_thres: 2.7
+    clean_thres: 3.0
+
+vis_config:
+  vis_path: ""
+  part: ["full_body", "head", "torso", "left_arm", "right_arm", "left_leg", "right_leg", "dress"]
