@@ -4,7 +4,10 @@ import numpy as np
 import pickle
 from pathlib import Path
 from PIL import Image
+import matplotlib
+matplotlib.use("Agg")                     # save figures without a display (servers / WSL)
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D   # noqa: F401  registers the '3d' projection (matplotlib < 3.2)
 
 from .EFD import extract_part_contours, get_fourier, body_height
 
@@ -27,6 +30,7 @@ class RUNEFD:
         self.NORMALIZE = efd_cfgs.get("normalize", False)
         self.ALIGN_START = efd_cfgs.get("align_start_point", True)
         self.SCALE_HEIGHT = efd_cfgs.get("scale_to_height", True)
+        self.SKIP_EXISTING = efd_cfgs.get("skip_existing", False)
 
         self.OUTPUT_PATH = Path(path_cfgs["output_path"]) / efd_dirname(efd_cfgs)
         self.IMAGE_EXTENSIONS = {
@@ -71,6 +75,7 @@ class RUNEFD:
         current_dirs = [self.INPUT_PATH]
         cnt = 0
         skip = 0
+        exist = 0
         frame_sum = 0
  
         for level_idx, level in enumerate(self.FOLDER):
@@ -83,6 +88,12 @@ class RUNEFD:
 
                     next_dirs.append(child_dir)
                     if level_idx == len(self.FOLDER) - 1:
+                        relative_path = child_dir.relative_to(self.INPUT_PATH)
+                        output_path = (self.OUTPUT_PATH / relative_path).with_suffix(".pkl")
+                        if self.SKIP_EXISTING and output_path.exists():
+                            exist += 1
+                            continue
+
                         efd_npy = self.frame2efd(child_dir)
 
                         if efd_npy.shape[0] == 0:
@@ -93,12 +104,12 @@ class RUNEFD:
                         frame_sum += efd_npy.shape[0]
                         cnt += 1
 
-                        relative_path = child_dir.relative_to(self.INPUT_PATH)
-                        output_path = (self.OUTPUT_PATH / relative_path).with_suffix(".pkl")
                         output_path.parent.mkdir(parents=True, exist_ok=True)
 
-                        with open(output_path, "wb") as f:
+                        tmp_path = output_path.with_suffix(".pkl.tmp")   # write then rename: no half-written .pkl if stopped
+                        with open(tmp_path, "wb") as f:
                             pickle.dump(efd_npy, f, protocol=pickle.HIGHEST_PROTOCOL)
+                        os.replace(tmp_path, output_path)
                         
                         if cnt % 500 == 0:
                             mean_frame = frame_sum / cnt
@@ -106,7 +117,7 @@ class RUNEFD:
 
             current_dirs = next_dirs
 
-        print(f"[Finished] {cnt} raw EFD data saved, {skip} data skipped. save path: {self.OUTPUT_PATH}")
+        print(f"[Finished] {cnt} raw EFD data saved, {skip} data skipped, {exist} already existed. save path: {self.OUTPUT_PATH}")
         print("=======================[EFD PROCESS FINISHED]========================")
 
 class RUNDENOISE:

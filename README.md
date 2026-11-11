@@ -1,12 +1,11 @@
 ## 실행
 python -m EFD-Analysis.main \
   --cfgs "/home/user/GaitRecognition/EFD-Analysis/configs/fineefd.yaml" \
-  --denoise yes \
   --vis no
 
 ## 설정
---denoise/vis: no로 작성하면 실행되지 않습니다 (프레임 수 제각각)
---denoise를 생략하면 config의 denoise_config.enable(기본 false)을 따릅니다
+--vis: no로 작성하면 실행되지 않습니다
+denoising: config의 denoise_config.enable (기본 false)로 선택 (프레임 수 제각각)
 
 efd_config
 - normalize: false (기본) - 회전(팔다리 흔들림 각도)과 part 간 상대 크기 유지, 출력 폴더 EFD{n}-unnorm

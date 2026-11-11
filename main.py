@@ -7,8 +7,6 @@ parser.add_argument('--cfgs', default="", type=str,
                         help='path of config file')
 parser.add_argument('--vis', default="yes", type=str,
                         help='enable visualization')
-parser.add_argument('--denoise', default=None, type=str,
-                        help='yes / no: overrides denoise_config.enable of the config')
 args = parser.parse_args()
 
 def make_efd(cfg):
@@ -33,8 +31,7 @@ if __name__ == "__main__":
     check = make_efd(cfg)
 
     if check:
-        denoise = cfg['denoise_config'].get('enable', False) if args.denoise is None else args.denoise == "yes"
-        if denoise:
+        if cfg['denoise_config'].get('enable', False):
             kill_noise(cfg)
 
         if args.vis == "yes":

@@ -9,6 +9,7 @@ efd_config:
                           # false: keeps rotation (limb swing angle) and relative size        -> EFD{n}-unnorm/
   align_start_point: true # (normalize: false) remove only the contour start-point dependency
   scale_to_height: true   # (normalize: false) divide by the per-frame body height (camera distance)
+  skip_existing: false    # true: skip sequences whose .pkl already exists (resume an interrupted run)
   parts_num: 4
   parts:
     background: [0]
@@ -17,7 +18,7 @@ efd_config:
     dress: [11]
 
 denoise_config:
-  enable: false # --denoise yes/no on the command line overrides this
+  enable: false # run denoising after EFD extraction
   slicing_num: 128
   autocorr_axis: 0
   window:
