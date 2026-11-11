@@ -13,6 +13,16 @@ efd_config
   - scale_to_height: true - 프레임별 몸 높이로 나눔 (카메라 거리 보정)
 - normalize: true - pyefd 정규화 (회전/크기/시작점 불변), 출력 폴더 EFD{n}
 
+- skip_existing: true - 이미 저장된 pkl은 건너뛰고 이어서 추출 (중단된 작업 재개)
+
+## 추출 결과 검사 / 정리
+python EFD-Analysis/data_check.py --cfgs EFD-Analysis/configs/fineefd.yaml --num 20
+- 무작위 pkl 몇 개의 part별 존재 비율을 출력하고, 이진 실루엣(0/255, 0/1)이나 컬러 이미지를 넣은 경우, 읽을 수 없는 파일, harmonic 수가 섞인 경우를 알려 줍니다
+- --cfgs 대신 --root <EFD 폴더>로 폴더를 직접 지정할 수도 있습니다
+
+python EFD-Analysis/trim_harmonics.py --root <EFD 폴더> --harmonics 32
+- 이미 추출한 pkl의 harmonic을 앞 N개만 남기고, 읽을 수 없는 pkl은 삭제합니다
+
 ## configs
 기존 8분할 - fineefd.yaml
 상지/하지 - coarseefd.yaml
